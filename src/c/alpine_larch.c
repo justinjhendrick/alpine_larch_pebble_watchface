@@ -1,10 +1,10 @@
 #include <pebble.h>
 #include "utils.h"
 
-#define DEBUG_TIME (true)
-#define DEBUG_BBOX (true)
+#define DEBUG_TIME (false)
+#define DEBUG_BBOX (false)
 #define BUFFER_LEN (20)
-#define SETTINGS_KEY 1
+#define SETTINGS_KEY (1)
 
 typedef struct ClaySettings {
   GColor color_background;
@@ -29,28 +29,40 @@ static Window* s_window;
 static Layer* s_layer;
 static char s_buffer[BUFFER_LEN];
 static GFont s_font_lg = NULL;
-static GFont s_font_md = NULL;
+static GFont s_font_sm = NULL;
+
+static void draw_minute(GContext* ctx, const char* buffer, GRect bbox) {
+  int h = bbox.size.h;
+  int font_height = 18;
+  int top_pad = 9;
+  GFont font = fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD);
+  int bot_pad = h - font_height - top_pad;
+  int shift_up = (top_pad - bot_pad) / 2 + 1;
+  GRect fixed_bbox = GRect(bbox.origin.x, bbox.origin.y - shift_up, bbox.size.w, bbox.size.h);
+  graphics_draw_text(ctx, buffer, font, fixed_bbox, GTextOverflowModeWordWrap, GTextAlignmentCenter, NULL);
+}
 
 static void draw_numbers(GContext* ctx, GPoint center, int vcr, struct tm* now) {
   // Hour
-  int hour = get_hour(now, false);
-  snprintf(s_buffer, BUFFER_LEN, "%d", hour);
-  int min_width = 40;
-  int hour_height = 70;
-  int hour_radius = vcr - min_width;
+  int min_width = 28;
+  int min_height = 28;
+  int min_size = max(min_width, min_height);
+  int hour_height = 85;
+  int hour_radius = vcr - min_size + 1;
   GRect hour_bbox = rect_from_midpoint(center, GSize(vcr * 2, hour_height));
 
   graphics_context_set_fill_color(ctx, settings.color_hour_circle);
   graphics_fill_circle(ctx, center, hour_radius);
   graphics_context_set_text_color(ctx, settings.color_hour);
+  format_hour(s_buffer, BUFFER_LEN, now);
   graphics_draw_text(ctx, s_buffer, s_font_lg, hour_bbox, GTextOverflowModeWordWrap, GTextAlignmentCenter, NULL);
   
   // Day of week above the hour
-  int date_height = 28;
+  int date_height = 23;
   GRect above_hour = rect_from_midpoint(
     (GPoint){
       .x = center.x,
-      .y = center.y - hour_radius * 3 / 4,
+      .y = center.y - hour_radius * 5 / 8,
     },
     (GSize){
       .w = vcr * 2,
@@ -59,13 +71,13 @@ static void draw_numbers(GContext* ctx, GPoint center, int vcr, struct tm* now) 
   );
   graphics_context_set_text_color(ctx, settings.color_date);
   strftime(s_buffer, BUFFER_LEN, "%a", now);
-  graphics_draw_text(ctx, s_buffer, s_font_md, above_hour, GTextOverflowModeWordWrap, GTextAlignmentCenter, NULL);
+  graphics_draw_text(ctx, s_buffer, s_font_sm, above_hour, GTextOverflowModeWordWrap, GTextAlignmentCenter, NULL);
 
   // Monthdate below the hour
   GRect below_hour = rect_from_midpoint(
     (GPoint){
       .x = center.x,
-      .y = center.y + hour_radius * 3 / 4,
+      .y = center.y + hour_radius * 5 / 8,
     },
     (GSize){
       .w = vcr * 2,
@@ -74,24 +86,24 @@ static void draw_numbers(GContext* ctx, GPoint center, int vcr, struct tm* now) 
   );
   graphics_context_set_text_color(ctx, settings.color_date);
   format_date(s_buffer, BUFFER_LEN, now);
-  graphics_draw_text(ctx, s_buffer, s_font_md, below_hour, GTextOverflowModeWordWrap, GTextAlignmentCenter, NULL);
+  graphics_draw_text(ctx, s_buffer, s_font_sm, below_hour, GTextOverflowModeWordWrap, GTextAlignmentCenter, NULL);
 
   // Minute
   const int MIN_MAX = 60;
   int min = now->tm_min;
   int min_angle = min * (TRIG_MAX_RATIO / MIN_MAX);
-  int min_text_center_radius = hour_radius + min_width / 2;
+  int min_text_center_radius = hour_radius + min_size / 2 + 2;
   graphics_context_set_text_color(ctx, settings.color_minute);
   strftime(s_buffer, BUFFER_LEN, "%M", now);
   GPoint min_text_center = cartesian_from_polar(center, min_text_center_radius, min_angle);
-  GRect min_bbox = rect_from_midpoint(min_text_center, GSize(min_width, 24));
-  graphics_draw_text(ctx, s_buffer, s_font_md, min_bbox, GTextOverflowModeWordWrap, GTextAlignmentCenter, NULL);
+  GRect min_bbox = rect_from_midpoint(min_text_center, GSize(min_width, min_height));
+  draw_minute(ctx, s_buffer, min_bbox);
 
   if (DEBUG_BBOX) {
     graphics_context_set_stroke_color(ctx, GColorWhite);
-    graphics_draw_rect(ctx, above_hour);
-    graphics_draw_rect(ctx, hour_bbox);
-    graphics_draw_rect(ctx, below_hour);
+    //graphics_draw_rect(ctx, above_hour);
+    //graphics_draw_rect(ctx, hour_bbox);
+    //graphics_draw_rect(ctx, below_hour);
     graphics_draw_rect(ctx, min_bbox);
   }
 }
@@ -150,10 +162,8 @@ static void inbox_received_handler(DictionaryIterator *iter, void *context) {
 }
 
 static void init(void) {
-  // TODO: need a narrower font. maybe this one?
-  // https://fonts.google.com/specimen/B612+Mono?preview.text=0123456789&categoryFilters=Appearance:%2FMonospace%2FMonospace;Feeling:%2FExpressive%2FFuturistic
-  s_font_lg = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_MICHROMA_60));
-  s_font_md = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_MICHROMA_20));
+  s_font_lg = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_MICHROMA_68));
+  s_font_sm = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_MICHROMA_18));
   load_settings();
   app_message_register_inbox_received(inbox_received_handler);
   app_message_open(app_message_inbox_size_maximum(), app_message_outbox_size_maximum());
@@ -170,7 +180,7 @@ static void init(void) {
 static void deinit(void) {
   if (s_window) window_destroy(s_window);
   if (s_font_lg) { fonts_unload_custom_font(s_font_lg); }
-  if (s_font_md) { fonts_unload_custom_font(s_font_md); }
+  if (s_font_sm) { fonts_unload_custom_font(s_font_sm); }
 }
 
 int main(void) {

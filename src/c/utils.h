@@ -18,26 +18,27 @@ static GRect rect_from_midpoint(GPoint midpoint, GSize size) {
 }
 
 static int min(int a, int b) {
-  if (a < b) {
-    return a;
-  }
+  if (a < b) return a;
+  return b;
+}
+
+static int max(int a, int b) {
+  if (a > b) return a;
   return b;
 }
 
 static void fast_forward_time(struct tm* now) {
-  now->tm_hour = 12;
+  now->tm_mday = now->tm_sec % 32;
+  now->tm_hour = now->tm_sec % 24;
   now->tm_min = now->tm_sec;
 }
 
-static int get_hour(struct tm* now, bool force_12h) {
-  int hour = now->tm_hour;
-  if (force_12h || !clock_is_24h_style()) {
-    hour = now->tm_hour % 12;
-    if (hour == 0) {
-      hour = 12;
-    }
+static void format_hour(char* buffer, int len, struct tm* now) {
+  if (clock_is_24h_style()) {
+    strftime(buffer, len, "%H", now);
+  } else {
+    strftime(buffer, len, "%I", now);
   }
-  return hour;
 }
 
 static void format_date(char* buffer, int len, struct tm* now) {

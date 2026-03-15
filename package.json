@@ -1,0 +1,41 @@
+{
+  "name": "alpine_larch",
+  "author": "justinjhendrick",
+  "version": "1.0.0",
+  "keywords": [
+    "pebble-watchface",
+    "analog"
+  ],
+  "private": false,
+  "dependencies": {
+    "pebble-clay": "^1.0.4"
+  },
+  "pebble": {
+    "displayName": "Alpine Larch",
+    "uuid": "b20d6cf9-69cc-4f35-b696-aca87e7b7a47",
+    "sdkVersion": "3",
+    "enableMultiJS": true,
+    "targetPlatforms": [
+      "emery"
+    ],
+    "watchapp": {
+      "watchface": true
+    },
+    "capabilities": [
+      "configurable"
+    ],
+    "messageKeys": [
+      "color_background",
+      "color_hour_circle",
+      "color_hour",
+      "color_minute",
+      "color_date"
+    ],
+    "resources": {
+      "media": [
+        {"name": "MICHROMA_60", "file": "fonts/Michroma-Regular.ttf", "characterRegex": "[0-9]", "type": "font"},
+        {"name": "MICHROMA_20", "file": "fonts/Michroma-Regular.ttf", "characterRegex": "[a-zA-Z0-9 ]", "type": "font"}
+      ]
+    }
+  }
+}

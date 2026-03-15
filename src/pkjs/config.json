@@ -1,0 +1,16 @@
+[
+  { "type": "heading", "defaultValue": "App Configuration" },
+  {
+    "type": "section",
+    "items": [
+      { "type": "heading", "defaultValue": "Colors" },
+      { "type": "color",  "messageKey": "color_background",         "defaultValue": "0x000000", "label": "color_background" },
+      { "type": "color",  "messageKey": "color_hour",               "defaultValue": "0xFF0000", "label": "color_hour" },
+      { "type": "color",  "messageKey": "color_minute",             "defaultValue": "0xFFFFFF", "label": "color_minute" }
+    ]
+  },
+  {
+    "type": "submit",
+    "defaultValue": "Save Settings"
+  }
+]

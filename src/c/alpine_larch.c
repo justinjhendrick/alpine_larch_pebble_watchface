@@ -6,6 +6,39 @@
 #define BUFFER_LEN (20)
 #define SETTINGS_KEY (1)
 
+#define VCR_INSET PBL_IF_ROUND_ELSE(5, 2)
+
+#if PBL_DISPLAY_WIDTH >= 260
+  #define HOUR_HEIGHT (85)
+  #define LG_MICHROMA (RESOURCE_ID_MICHROMA_68)
+  #define MD_MICHROMA (RESOURCE_ID_MICHROMA_24)
+  #define SM_MICHROMA (RESOURCE_ID_MICHROMA_20)
+  #define MINUTE_WIDTH (50)
+  #define MINUTE_HEIGHT (24)
+#elif PBL_DISPLAY_WIDTH >= 200
+  #define HOUR_HEIGHT (85)
+  #define LG_MICHROMA (RESOURCE_ID_MICHROMA_68)
+  #define MD_MICHROMA (RESOURCE_ID_MICHROMA_20)
+  #define SM_MICHROMA (RESOURCE_ID_MICHROMA_18)
+  #define MINUTE_WIDTH (28)
+  #define MINUTE_HEIGHT (28)
+#elif PBL_DISPLAY_WIDTH >= 180
+  #define HOUR_HEIGHT (60)
+  #define LG_MICHROMA (RESOURCE_ID_MICHROMA_46)
+  #define MD_MICHROMA (RESOURCE_ID_MICHROMA_20)
+  #define SM_MICHROMA (RESOURCE_ID_MICHROMA_16)
+  #define MINUTE_WIDTH (28)
+  #define MINUTE_HEIGHT (28)
+#else
+  #define HOUR_HEIGHT (60)
+  #define LG_MICHROMA (RESOURCE_ID_MICHROMA_46)
+  #define MD_MICHROMA (RESOURCE_ID_MICHROMA_18)
+  #define SM_MICHROMA (RESOURCE_ID_MICHROMA_14)
+  #define MINUTE_WIDTH (24)
+  #define MINUTE_HEIGHT (24)
+#endif
+
+
 typedef struct ClaySettings {
   GColor color_background;
   GColor color_hour_circle;
@@ -18,36 +51,26 @@ typedef struct ClaySettings {
 ClaySettings settings;
 
 static void default_settings() {
-  settings.color_background        = GColorDarkCandyAppleRed;
-  settings.color_hour_circle       = GColorBlack;
-  settings.color_hour              = GColorDarkCandyAppleRed;
-  settings.color_minute            = GColorBlack;
-  settings.color_date              = GColorDarkCandyAppleRed;
+  settings.color_background        = COLOR_FALLBACK(GColorDarkCandyAppleRed, GColorBlack);
+  settings.color_hour_circle       = COLOR_FALLBACK(GColorBlack, GColorWhite);
+  settings.color_hour              = COLOR_FALLBACK(GColorDarkCandyAppleRed, GColorBlack);
+  settings.color_minute            = COLOR_FALLBACK(GColorBlack, GColorWhite);
+  settings.color_date              = COLOR_FALLBACK(GColorDarkCandyAppleRed, GColorBlack);
 }
 
 static Window* s_window;
 static Layer* s_layer;
 static char s_buffer[BUFFER_LEN];
 static GFont s_font_lg = NULL;
+static GFont s_font_md = NULL;
 static GFont s_font_sm = NULL;
-
-static void draw_minute(GContext* ctx, const char* buffer, GRect bbox) {
-  int h = bbox.size.h;
-  int font_height = 18;
-  int top_pad = 9;
-  GFont font = fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD);
-  int bot_pad = h - font_height - top_pad;
-  int shift_up = (top_pad - bot_pad) / 2 + 1;
-  GRect fixed_bbox = GRect(bbox.origin.x, bbox.origin.y - shift_up, bbox.size.w, bbox.size.h);
-  graphics_draw_text(ctx, buffer, font, fixed_bbox, GTextOverflowModeWordWrap, GTextAlignmentCenter, NULL);
-}
 
 static void draw_numbers(GContext* ctx, GPoint center, int vcr, struct tm* now) {
   // Hour
-  int min_width = 28;
-  int min_height = 28;
+  int min_width = MINUTE_WIDTH;
+  int min_height = MINUTE_HEIGHT;
   int min_size = max(min_width, min_height);
-  int hour_height = 85;
+  int hour_height = HOUR_HEIGHT;
   int hour_radius = vcr - min_size + 1;
   GRect hour_bbox = rect_from_midpoint(center, GSize(vcr * 2, hour_height));
 
@@ -97,7 +120,11 @@ static void draw_numbers(GContext* ctx, GPoint center, int vcr, struct tm* now) 
   strftime(s_buffer, BUFFER_LEN, "%M", now);
   GPoint min_text_center = cartesian_from_polar(center, min_text_center_radius, min_angle);
   GRect min_bbox = rect_from_midpoint(min_text_center, GSize(min_width, min_height));
-  draw_minute(ctx, s_buffer, min_bbox);
+  if (PBL_DISPLAY_WIDTH >= 260) {
+    draw_text_shifted(ctx, s_buffer, min_bbox, s_font_md, 3);
+  } else {
+    draw_text_midalign(ctx, s_buffer, min_bbox);
+  }
 
   if (DEBUG_BBOX) {
     graphics_context_set_stroke_color(ctx, GColorWhite);
@@ -115,10 +142,10 @@ static void update_layer(Layer* layer, GContext* ctx) {
     fast_forward_time(now);
   }
 
-  GRect bounds = layer_get_bounds(layer);
+  GRect bounds = layer_get_unobstructed_bounds(layer);
   graphics_context_set_fill_color(ctx, settings.color_background);
   graphics_fill_rect(ctx, bounds, 0, GCornerNone);
-  int vcr = min(bounds.size.h, bounds.size.w) / 2;
+  int vcr = bounds.size.w / 2 - VCR_INSET;
   GPoint center = grect_center_point(&bounds);
   draw_numbers(ctx, center, vcr, now);
 }
@@ -162,8 +189,10 @@ static void inbox_received_handler(DictionaryIterator *iter, void *context) {
 }
 
 static void init(void) {
-  s_font_lg = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_MICHROMA_68));
-  s_font_sm = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_MICHROMA_18));
+  s_font_lg = fonts_load_custom_font(resource_get_handle(LG_MICHROMA));
+  s_font_md = fonts_load_custom_font(resource_get_handle(MD_MICHROMA));
+  s_font_sm = fonts_load_custom_font(resource_get_handle(SM_MICHROMA));
+
   load_settings();
   app_message_register_inbox_received(inbox_received_handler);
   app_message_open(app_message_inbox_size_maximum(), app_message_outbox_size_maximum());
@@ -180,6 +209,7 @@ static void init(void) {
 static void deinit(void) {
   if (s_window) window_destroy(s_window);
   if (s_font_lg) { fonts_unload_custom_font(s_font_lg); }
+  if (s_font_md) { fonts_unload_custom_font(s_font_md); }
   if (s_font_sm) { fonts_unload_custom_font(s_font_sm); }
 }
 

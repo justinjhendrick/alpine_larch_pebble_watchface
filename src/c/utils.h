@@ -58,3 +58,38 @@ static void format_date(char* buffer, int len, struct tm* now) {
   }
   snprintf(buffer, len, "%d%s", now->tm_mday, ordinal);
 }
+
+static void draw_text_shifted(GContext* ctx, const char* buffer, GRect bbox, GFont font, int shift_up) {
+  GRect fixed_bbox = GRect(bbox.origin.x, bbox.origin.y - shift_up, bbox.size.w, bbox.size.h);
+  graphics_draw_text(ctx, buffer, font, fixed_bbox, GTextOverflowModeWordWrap, GTextAlignmentCenter, NULL);
+}
+
+static void draw_text_midalign(GContext* ctx, const char* buffer, GRect bbox) {
+  int h = bbox.size.h;
+  int font_height = 0;
+  int top_pad = 0;
+  GFont font;
+  if (h < 14) {
+    return;
+  } else if (h < 18) {
+    font_height = 9;
+    top_pad = 4;
+    font = fonts_get_system_font(FONT_KEY_GOTHIC_14_BOLD);
+  } else if (h < 24) {
+    font_height = 11;
+    top_pad = 6;
+    font = fonts_get_system_font(FONT_KEY_GOTHIC_18_BOLD);
+  } else if (h < 28) {
+    font_height = 14;
+    top_pad = 9;
+    font = fonts_get_system_font(FONT_KEY_GOTHIC_24_BOLD);
+  } else {
+    font_height = 18;
+    top_pad = 9;
+    font = fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD);
+  }
+  int bot_pad = h - font_height - top_pad;
+  int shift_up = (top_pad - bot_pad) / 2 + 1;
+  GRect fixed_bbox = GRect(bbox.origin.x, bbox.origin.y - shift_up, bbox.size.w, bbox.size.h);
+  graphics_draw_text(ctx, buffer, font, fixed_bbox, GTextOverflowModeWordWrap, GTextAlignmentCenter, NULL);
+}

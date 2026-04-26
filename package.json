@@ -4,19 +4,33 @@
   "version": "1.0.0",
   "keywords": [
     "pebble-watchface",
-    "analog"
+    "configurable",
+    "color",
+    "digital",
+    "analog",
+    "minimalist",
+    "retrofuturistic",
+    "retro",
+    "1960",
+    "space"
   ],
   "private": false,
   "dependencies": {
-    "pebble-clay": "^1.0.4"
+    "@rebble/clay": "^1.0.8"
   },
   "pebble": {
-    "displayName": "Alpine Larch",
+    "displayName": "Telstar",
     "uuid": "b20d6cf9-69cc-4f35-b696-aca87e7b7a47",
     "sdkVersion": "3",
     "enableMultiJS": true,
     "targetPlatforms": [
-      "emery"
+      "aplite",
+      "basalt",
+      "chalk",
+      "diorite",
+      "emery",
+      "flint",
+      "gabbro"
     ],
     "watchapp": {
       "watchface": true
@@ -33,8 +47,49 @@
     ],
     "resources": {
       "media": [
-        {"name": "MICHROMA_68", "file": "fonts/Michroma-Regular.ttf", "characterRegex": "[0-9]", "type": "font"},
-        {"name": "MICHROMA_18", "file": "fonts/Michroma-Regular.ttf", "characterRegex": "[a-zA-Z0-9 ]", "type": "font"}
+        {
+          "name": "MICHROMA_68",
+          "file": "fonts/Michroma-Regular.ttf",
+          "characterRegex": "[0-9]",
+          "type": "font",
+          "targetPlatforms": ["emery", "gabbro"]
+        },
+        {
+          "name": "MICHROMA_46",
+          "file": "fonts/Michroma-Regular.ttf",
+          "characterRegex": "[0-9]",
+          "type": "font"
+        },
+        {
+          "name": "MICHROMA_24",
+          "file": "fonts/Michroma-Regular.ttf",
+          "characterRegex": "[0-9]",
+          "type": "font"
+        },
+        {
+          "name": "MICHROMA_20",
+          "file": "fonts/Michroma-Regular.ttf",
+          "characterRegex": "[a-zA-Z0-9 ]",
+          "type": "font"
+        },
+        {
+          "name": "MICHROMA_18",
+          "file": "fonts/Michroma-Regular.ttf",
+          "characterRegex": "[a-zA-Z0-9 ]",
+          "type": "font"
+        },
+        {
+          "name": "MICHROMA_16",
+          "file": "fonts/Michroma-Regular.ttf",
+          "characterRegex": "[a-zA-Z0-9 ]",
+          "type": "font"
+        },
+        {
+          "name": "MICHROMA_14",
+          "file": "fonts/Michroma-Regular.ttf",
+          "characterRegex": "[a-zA-Z0-9 ]",
+          "type": "font"
+        }
       ]
     }
   }

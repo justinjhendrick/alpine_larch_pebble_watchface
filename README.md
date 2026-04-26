@@ -1,12 +1,30 @@
-# Alpine Larch Pebble Watchface
+# Telstar Pebble Watchface
+
+https://apps.rebble.io/en_US/application/69b73856657baf00098d504e
 
 https://apps.rebble.io/en_US/application/69b73856657baf00098d504e
 
 ## Screenshots
 
+### Aplite, Diorite, Flint
+
+![screenshot](screenshot_flint.png)
+
+### Basalt
+
+![screenshot](screenshot_basalt.png)
+
+### Chalk
+
+![screenshot](screenshot_chalk.png)
+
 ### Emery
 
 ![screenshot](screenshot_emery.png)
+
+### Gabbro
+
+![screenshot](screenshot_gabbro.png)
 
 ## License
 

@@ -9,33 +9,41 @@
 #define VCR_INSET PBL_IF_ROUND_ELSE(5, 2)
 
 #if PBL_DISPLAY_WIDTH >= 260
+  // gabbro
   #define HOUR_HEIGHT (85)
   #define LG_MICHROMA (RESOURCE_ID_MICHROMA_68)
   #define MD_MICHROMA (RESOURCE_ID_MICHROMA_24)
   #define SM_MICHROMA (RESOURCE_ID_MICHROMA_20)
   #define MINUTE_WIDTH (50)
   #define MINUTE_HEIGHT (24)
+  #define DATE_HEIGHT (25)
 #elif PBL_DISPLAY_WIDTH >= 200
+  // emery
   #define HOUR_HEIGHT (85)
   #define LG_MICHROMA (RESOURCE_ID_MICHROMA_68)
   #define MD_MICHROMA (RESOURCE_ID_MICHROMA_20)
   #define SM_MICHROMA (RESOURCE_ID_MICHROMA_18)
   #define MINUTE_WIDTH (28)
   #define MINUTE_HEIGHT (28)
+  #define DATE_HEIGHT (23)
 #elif PBL_DISPLAY_WIDTH >= 180
+  // chalk
   #define HOUR_HEIGHT (60)
-  #define LG_MICHROMA (RESOURCE_ID_MICHROMA_46)
+  #define LG_MICHROMA (RESOURCE_ID_MICHROMA_48)
   #define MD_MICHROMA (RESOURCE_ID_MICHROMA_20)
   #define SM_MICHROMA (RESOURCE_ID_MICHROMA_16)
   #define MINUTE_WIDTH (28)
   #define MINUTE_HEIGHT (28)
+  #define DATE_HEIGHT (20)
 #else
-  #define HOUR_HEIGHT (60)
-  #define LG_MICHROMA (RESOURCE_ID_MICHROMA_46)
+  // aplite, basalt, diorite, flint
+  #define HOUR_HEIGHT (56)
+  #define LG_MICHROMA (RESOURCE_ID_MICHROMA_44)
   #define MD_MICHROMA (RESOURCE_ID_MICHROMA_18)
   #define SM_MICHROMA (RESOURCE_ID_MICHROMA_14)
   #define MINUTE_WIDTH (24)
   #define MINUTE_HEIGHT (24)
+  #define DATE_HEIGHT (17)
 #endif
 
 
@@ -81,7 +89,6 @@ static void draw_numbers(GContext* ctx, GPoint center, int vcr, struct tm* now) 
   graphics_draw_text(ctx, s_buffer, s_font_lg, hour_bbox, GTextOverflowModeWordWrap, GTextAlignmentCenter, NULL);
   
   // Day of week above the hour
-  int date_height = 23;
   GRect above_hour = rect_from_midpoint(
     (GPoint){
       .x = center.x,
@@ -89,7 +96,7 @@ static void draw_numbers(GContext* ctx, GPoint center, int vcr, struct tm* now) 
     },
     (GSize){
       .w = vcr * 2,
-      .h = date_height,
+      .h = DATE_HEIGHT,
     }
   );
   graphics_context_set_text_color(ctx, settings.color_date);
@@ -104,7 +111,7 @@ static void draw_numbers(GContext* ctx, GPoint center, int vcr, struct tm* now) 
     },
     (GSize){
       .w = vcr * 2,
-      .h = date_height,
+      .h = DATE_HEIGHT,
     }
   );
   graphics_context_set_text_color(ctx, settings.color_date);
@@ -129,9 +136,9 @@ static void draw_numbers(GContext* ctx, GPoint center, int vcr, struct tm* now) 
   if (DEBUG_BBOX) {
     graphics_context_set_stroke_color(ctx, GColorWhite);
     //graphics_draw_rect(ctx, above_hour);
-    //graphics_draw_rect(ctx, hour_bbox);
+    graphics_draw_rect(ctx, hour_bbox);
     //graphics_draw_rect(ctx, below_hour);
-    graphics_draw_rect(ctx, min_bbox);
+    //graphics_draw_rect(ctx, min_bbox);
   }
 }
 

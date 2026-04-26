@@ -55,7 +55,13 @@
           "targetPlatforms": ["emery", "gabbro"]
         },
         {
-          "name": "MICHROMA_46",
+          "name": "MICHROMA_48",
+          "file": "fonts/Michroma-Regular.ttf",
+          "characterRegex": "[0-9]",
+          "type": "font"
+        },
+        {
+          "name": "MICHROMA_44",
           "file": "fonts/Michroma-Regular.ttf",
           "characterRegex": "[0-9]",
           "type": "font"

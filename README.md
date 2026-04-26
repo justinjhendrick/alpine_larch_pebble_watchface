@@ -2,8 +2,6 @@
 
 https://apps.rebble.io/en_US/application/69b73856657baf00098d504e
 
-https://apps.rebble.io/en_US/application/69b73856657baf00098d504e
-
 ## Screenshots
 
 ### Aplite, Diorite, Flint

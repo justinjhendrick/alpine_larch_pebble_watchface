@@ -21,11 +21,11 @@
   // emery
   #define HOUR_HEIGHT (85)
   #define LG_MICHROMA (RESOURCE_ID_MICHROMA_68)
-  #define MD_MICHROMA (RESOURCE_ID_MICHROMA_20)
-  #define SM_MICHROMA (RESOURCE_ID_MICHROMA_18)
-  #define MINUTE_WIDTH (28)
-  #define MINUTE_HEIGHT (28)
-  #define DATE_HEIGHT (23)
+  #define MD_MICHROMA (RESOURCE_ID_MICHROMA_24)
+  #define SM_MICHROMA (RESOURCE_ID_MICHROMA_20)
+  #define MINUTE_WIDTH (46)
+  #define MINUTE_HEIGHT (32)
+  #define DATE_HEIGHT (25)
 #elif PBL_DISPLAY_WIDTH >= 180
   // chalk
   #define HOUR_HEIGHT (60)
@@ -61,9 +61,9 @@ ClaySettings settings;
 static void default_settings() {
   settings.color_background        = COLOR_FALLBACK(GColorDarkCandyAppleRed, GColorBlack);
   settings.color_hour_circle       = COLOR_FALLBACK(GColorBlack, GColorWhite);
-  settings.color_hour              = COLOR_FALLBACK(GColorDarkCandyAppleRed, GColorBlack);
-  settings.color_minute            = COLOR_FALLBACK(GColorBlack, GColorWhite);
-  settings.color_date              = COLOR_FALLBACK(GColorDarkCandyAppleRed, GColorBlack);
+  settings.color_hour              = COLOR_FALLBACK(GColorWhite, GColorBlack);
+  settings.color_minute            = COLOR_FALLBACK(GColorWhite, GColorWhite);
+  settings.color_date              = COLOR_FALLBACK(GColorWhite, GColorBlack);
 }
 
 static Window* s_window;
@@ -75,12 +75,12 @@ static GFont s_font_sm = NULL;
 
 static void draw_numbers(GContext* ctx, GPoint center, int vcr, struct tm* now) {
   // Hour
-  int min_width = MINUTE_WIDTH;
-  int min_height = MINUTE_HEIGHT;
-  int min_size = max(min_width, min_height);
-  int hour_height = HOUR_HEIGHT;
-  int hour_radius = vcr - min_size + 1;
-  GRect hour_bbox = rect_from_midpoint(center, GSize(vcr * 2, hour_height));
+  int minute_size = max(MINUTE_WIDTH, MINUTE_HEIGHT);
+  if (PBL_DISPLAY_WIDTH >= 200 && PBL_DISPLAY_WIDTH < 260) {
+    minute_size = MINUTE_WIDTH * 2 / 3;
+  }
+  int hour_radius = vcr - minute_size + 1;
+  GRect hour_bbox = rect_from_midpoint(center, GSize(vcr * 2, HOUR_HEIGHT));
 
   graphics_context_set_fill_color(ctx, settings.color_hour_circle);
   graphics_fill_circle(ctx, center, hour_radius);
@@ -122,13 +122,28 @@ static void draw_numbers(GContext* ctx, GPoint center, int vcr, struct tm* now) 
   const int MIN_MAX = 60;
   int min = now->tm_min;
   int min_angle = min * (TRIG_MAX_RATIO / MIN_MAX);
-  int min_text_center_radius = hour_radius + min_size / 2 + 2;
+  int min_text_center_radius = hour_radius + minute_size / 2 + 3;
   graphics_context_set_text_color(ctx, settings.color_minute);
   strftime(s_buffer, BUFFER_LEN, "%M", now);
   GPoint min_text_center = cartesian_from_polar(center, min_text_center_radius, min_angle);
-  GRect min_bbox = rect_from_midpoint(min_text_center, GSize(min_width, min_height));
+  GRect min_bbox = rect_from_midpoint(min_text_center, GSize(MINUTE_WIDTH, MINUTE_HEIGHT));
   if (PBL_DISPLAY_WIDTH >= 260) {
+    // gabbro
     draw_text_shifted(ctx, s_buffer, min_bbox, s_font_md, 3);
+  } else if (PBL_DISPLAY_WIDTH >= 200) {
+    // emery
+    if ((now->tm_min >= 12 && now->tm_min <= 18) ||
+        (now->tm_min >= 42 && now->tm_min <= 48)
+    ) {
+      s_buffer[2] = s_buffer[1];
+      s_buffer[1] = '\n';
+      s_buffer[3] = '\0';
+      int old_height = min_bbox.size.h;
+      min_bbox.origin.y -= old_height / 2;
+      min_bbox.size.h = old_height * 2;
+    }
+    GFont font = fonts_get_system_font(FONT_KEY_BITHAM_34_MEDIUM_NUMBERS);
+    draw_text_shifted(ctx, s_buffer, min_bbox, font, 5);
   } else {
     draw_text_midalign(ctx, s_buffer, min_bbox);
   }
@@ -136,9 +151,9 @@ static void draw_numbers(GContext* ctx, GPoint center, int vcr, struct tm* now) 
   if (DEBUG_BBOX) {
     graphics_context_set_stroke_color(ctx, GColorWhite);
     //graphics_draw_rect(ctx, above_hour);
-    graphics_draw_rect(ctx, hour_bbox);
+    //graphics_draw_rect(ctx, hour_bbox);
     //graphics_draw_rect(ctx, below_hour);
-    //graphics_draw_rect(ctx, min_bbox);
+    graphics_draw_rect(ctx, min_bbox);
   }
 }
 

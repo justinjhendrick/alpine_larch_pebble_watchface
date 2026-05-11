@@ -28,6 +28,7 @@ static int max(int a, int b) {
 }
 
 static void fast_forward_time(struct tm* now) {
+  now->tm_wday = now->tm_sec % 7;
   now->tm_mday = now->tm_sec % 32;
   now->tm_hour = now->tm_sec % 24;
   now->tm_min = now->tm_sec;

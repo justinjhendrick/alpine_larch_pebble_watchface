@@ -5,10 +5,10 @@
     "items": [
       { "type": "heading", "defaultValue": "Colors" },
       { "type": "color",  "messageKey": "color_background",       "defaultValue": "0xAA0000", "label": "color_background" },
-      { "type": "color",  "messageKey": "color_hour_circle",      "defaultValue": "0xFFFFFF", "label": "color_hour_circle" },
-      { "type": "color",  "messageKey": "color_hour",             "defaultValue": "0xAA0000", "label": "color_hour" },
+      { "type": "color",  "messageKey": "color_hour_circle",      "defaultValue": "0x000000", "label": "color_hour_circle" },
+      { "type": "color",  "messageKey": "color_hour",             "defaultValue": "0xFFFFFF", "label": "color_hour" },
       { "type": "color",  "messageKey": "color_minute",           "defaultValue": "0xFFFFFF", "label": "color_minute" },
-      { "type": "color",  "messageKey": "color_date",             "defaultValue": "0xAA0000", "label": "color_date" }
+      { "type": "color",  "messageKey": "color_date",             "defaultValue": "0xFFFFFF", "label": "color_date" }
     ]
   },
   {
